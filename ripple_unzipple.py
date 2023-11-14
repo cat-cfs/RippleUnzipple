@@ -11,9 +11,14 @@
 #========================================================
 """
 File: ripple_unzipple.py
-Author: Anthony Rodway
-Email: anthony.rodway@nrcan-rncan.gc.ca
-Description: Recursively unzips all compressed folders in a given directory.
+Created By:       Anthony Rodway
+Email:            anthony.rodway@nrcan-rncan.gc.ca
+Creation Date:    Fri November 10 14:00:00 PST 2023
+Organization:     Natural Resources of Canada
+Team:             Carbon Accounting Team
+
+Description: 
+    Recursively unzips all compressed folders in a given directory.
 
 Usage:
     python ripple_unzipple.py input_path output_path [log_path]
@@ -30,6 +35,7 @@ import shutil
 from datetime import datetime
 from zipfile import ZipFile
 from py7zr import SevenZipFile
+from distutils.dir_util import copy_tree
 
 
 #========================================================
@@ -37,38 +43,41 @@ from py7zr import SevenZipFile
 #========================================================
 # ANSI escape codes for colors
 class Colors:
-    ERROR = '\033[91m'
-    WARNING = '\033[93m'
-    INFO = '\033[94m'
+    ERROR = '\033[91m' # red
+    WARNING = '\033[93m' # yellow
+    INFO = '\033[94m' # blue
     END = '\033[0m'
       
 
 #========================================================
-# Error Handelling and Logging
-#========================================================
-def error_handeling(input_path, output_path):
-    """ """
-    # Check if the provided path exists
-    if not os.path.exists(input_path):
-        raise ValueError(f"The specified path does not exist: {input_path}")
+# Logging
+#========================================================   
+def logging(file_path, type, message):
+    """
+    Log messages with colored tags and timestamps.
 
-    # Check if the provided path is a directory
-    if not os.path.isdir(input_path):
-        raise ValueError(f"The specified path is not a directory: {input_path}")
-
-def log(path, type, message):
-    """ """
+    Args:
+        file_path (str): Path to the log file.
+        type (str): Color code for the log message type.
+        message (str): The log message.
+        
+    Return:
+        None.
+    """
+    # Set the tag, 'ERROR' is default.
     tag = 'ERROR'
     if type == Colors.INFO:
         tag = 'INFO'
     elif type == Colors.WARNING:
         tag = 'WARNING'
+        
+    # Print the colored log message to the console
     print(f'{type}[{tag}] {message}{Colors.END}')
     
-    if path != '':
-        # Open the file in append mode
-        with open(path, 'a') as log_file:
-            # Append a log message
+    # If there is a file path provided
+    if file_path != '':
+        # Open the file in append mode and append a log message
+        with open(file_path, 'a') as log_file:
             log_file.write(f'{datetime.now().strftime("%d/%m/%Y %H:%M:%S")} [{tag}] {message}\n')
     
 
@@ -76,54 +85,79 @@ def log(path, type, message):
 # Unzipping Functions
 #========================================================
 def ripple_unzip(input_path, output_path, log_path = ''):
-    """ This function  """
+    """
+    Unzip .zip and .7z files either for a directory or a compressed file.
+
+    Args:
+        input_path (str): Path to the input directory or compressed file.
+        output_path (str): Path to the output directory.
+        log_path (str, optional): Path to the log file. Defaults to ''.
+        
+    Return:
+        None.
+    """
     try:
-        error_handeling(input_path, output_path)
-        recursive_unzip(input_path, output_path)
+        # Check if the provided path exists
+        if not os.path.exists(input_path):
+            raise ValueError(f"The specified path does not exist: {input_path}")
+        
+        # Handle different input extensions
+        if os.path.isdir(input_path):
+            # First copy the directory to the new location 
+            copy_tree(input_path, output_path)
+            recursive_unzip(input_path, output_path)
+        
+        elif input_path.endswith((".zip", ".7z")):
+            os.makedirs(output_path, exist_ok=True)
+
+            with ZipFile(input_path, mode='r') if input_path.endswith(".zip") else SevenZipFile(input_path, mode='r') as archive_ref:
+                archive_ref.extractall(output_path)
+                recursive_unzip(output_path, output_path)
+        
+        else:
+            raise ValueError("Unsupported input type. Please provide a directory or a compressed file.")
+        
     except Exception as error:
-        log(log_path, Colors.ERROR, error)
-        exit(1)
+        logging(log_path, Colors.ERROR, str(error))
+        exit(1)   
     
-def recursive_unzip(input_path, output_path):
-    """Recursively unzip .zip and .7z files in the input_path to the output_path."""
+def recursive_unzip(input_path, output_path):   
+    """
+    Recursively unzip .zip and .7z files in the input_path to the output_path.
+
+    Args:
+        input_path (str): Path to the input directory or compressed file.
+        output_path (str): Path to the output directory.
+        
+    Return:
+        None.
+    """
     # Create output_path if it doesn't exist
     os.makedirs(output_path, exist_ok=True)
-    
+
     # Iterate through the directory and unzip any compressed folders
     for root, dirs, files in os.walk(input_path):
         for file in files:
+            # Get the file path of the input 
             file_path = os.path.join(root, file)
             
-            new_file_path = ''
-            if file.endswith(".zip"):
-                with ZipFile(file_path, mode='r') as zip_ref:
-                    file_path_no_extension = os.path.splitext(file_path)[0]
-                    extract_path = os.path.join(output_path, file_path_no_extension[len(input_path) + 1:])
-                    os.makedirs(extract_path, exist_ok=True)
-                    zip_ref.extractall(extract_path)
-                    recursive_unzip(extract_path, extract_path)  # Use extract_path as the new input_path
-                    new_file_path = extract_path + '.zip'   
+            # Get the path that the file will be extracted to
+            extract_path = os.path.join(output_path, os.path.splitext(file_path)[0][len(input_path) + 1:])
+
+            file_to_remove = ''
+            if file.endswith((".zip", ".7z")):
+                with ZipFile(file_path, mode='r') if file.endswith(".zip") else SevenZipFile(file_path, mode='r') as archive_ref:
+                    archive_ref.extractall(extract_path)
                     
-                try:
-                    os.remove(new_file_path)  # Remove the original compressed file from the new output folder
-                except Exception as e:
-                    print(f"Error removing file: {e}")            
-                
-            elif file.endswith(".7z"):
-                with SevenZipFile(file_path, mode='r') as sevenzip_ref:
-                    file_path_no_extension = os.path.splitext(file_path)[0]
-                    extract_path = os.path.join(output_path, file_path_no_extension[len(input_path) + 1:])
-                    os.makedirs(extract_path, exist_ok=True)
-                    sevenzip_ref.extractall(extract_path)
-                    recursive_unzip(extract_path, extract_path)  # Use extract_path as the new input_path
-                    new_file_path = extract_path + '.7z'
+                    # Recursively call the function to check every file in the directory tree
+                    recursive_unzip(extract_path, extract_path)
+                    
+                    # Flag the compressed file to be removed
+                    file_to_remove = extract_path + '.zip' if file.endswith(".zip") else extract_path + '.7z'
 
-                try:
-                    os.remove(new_file_path)  # Remove the original compressed file from the new output folder
-                except Exception as e:
-                    print(f"Error removing file: {e}")
+                # Remove the original compressed file from the new output folder
+                os.remove(file_to_remove)
 
-                
             
 #========================================================
 # Main
@@ -143,10 +177,11 @@ def main():
         if len(sys.argv) == 4:
             ripple_unzip(sys.argv[1], sys.argv[2], sys.argv[3])
 
+        # Call the main logic function for starting the recursive unzipping
         ripple_unzip(sys.argv[1], sys.argv[2])
     except Exception as error:
         # print(f'{Colors.ERROR}[Error] {error}{Colors.END}')
-        log(Colors.ERROR, error)
+        logging(Colors.ERROR, error)
         exit(1)
         
     # Get the end time of the script and calculate the elapsed time
