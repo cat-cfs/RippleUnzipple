@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 #~-~ encoding: utf-8 ~-~
+# ripple_unzipple/ripple_unzipple.py
 #========================================================
 # Created By:       Anthony Rodway
 # Email:            anthony.rodway@nrcan-rncan.gc.ca
@@ -10,7 +11,7 @@
 # File Header
 #========================================================
 """
-File: ripple_unzipple.py
+File: ripple_unzipple/ripple_unzipple.py
 Created By:       Anthony Rodway
 Email:            anthony.rodway@nrcan-rncan.gc.ca
 Creation Date:    Fri November 10 14:00:00 PST 2023
@@ -117,9 +118,12 @@ def ripple_unzip(input_path, output_path, log_path = ''):
         else:
             raise ValueError("Unsupported input type. Please provide a directory or a compressed file.")
         
+    except ValueError as error:
+        logging(log_path, Colors.ERROR, str(error))
+        raise ValueError(error)   
     except Exception as error:
         logging(log_path, Colors.ERROR, str(error))
-        exit(1)   
+        raise Exception(error)  
     
 def recursive_unzip(input_path, output_path):   
     """
@@ -174,14 +178,15 @@ def main():
             raise ValueError("Usage: python ripple_unzipple.py input_path output_path [log_path]")
 
         # Call the recursive_unzip function with the provided path
+        log_path = ''
         if len(sys.argv) == 4:
             ripple_unzip(sys.argv[1], sys.argv[2], sys.argv[3])
+            log_path = sys.argv[3]
 
         # Call the main logic function for starting the recursive unzipping
         ripple_unzip(sys.argv[1], sys.argv[2])
     except Exception as error:
-        # print(f'{Colors.ERROR}[Error] {error}{Colors.END}')
-        logging(Colors.ERROR, error)
+        # logging(log_path, Colors.ERROR, error)
         exit(1)
         
     # Get the end time of the script and calculate the elapsed time
@@ -195,3 +200,4 @@ def main():
 #========================================================
 if __name__ == "__main__":
     sys.exit(main())
+    
