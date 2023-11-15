@@ -27,7 +27,6 @@ pip install -r /path/to/requirements.txt
 
 ## Usage
 
-[Explain how users can use your project, providing examples or code snippets if necessary. Include any relevant details or instructions on how to run the project.]
 To use Ripple Unzipple, run the script from the command line with the following syntax:
 ```
 python ripple_unzipple.py input_path output_path [log_path]
