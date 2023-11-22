@@ -29,15 +29,15 @@ pip install -r /path/to/requirements.txt
 
 To use Ripple Unzipple, run the script from the command line with the following syntax:
 ```
-python ripple_unzipple.py input_path output_path [log_path]
+python /path/to/ripple_unzipple.py input_path output_path [log_path]
 ```
 - input_path: Path to the input directory or compressed file.
 - output_path: Path to the output directory where the uncompressed data will be stored.
 - log_path (optional): Path to the log file. If provided, detailed logs will be saved to this file.
 
-Example:
+Example from root of project:
 ```
-python ripple_unzipple.py /Testing/Data/TestFolder.zip /OutputFolder OutputLogs.txt
+python ./ripple_unzipple/ripple_unzipple.py /Testing/Data/TestFolder.zip /Testing/OutputFolder /Testing/OutputLog.txt
 ```
 
 You also have the option of calling this function from a module import with the following syntax:
@@ -45,12 +45,30 @@ You also have the option of calling this function from a module import with the 
 from /path/to/ripple_unzipple import ripple_unzip
 
 def main():
-    ripple_unzip('input_path', 'output_path', 'log_path')
+    ripple_unzip(input_path, output_path, log_path)
 ```
 
 ## Configuration
 
-No specific configuration is required for Ripple Unzipple. However, you can customize the script's behavior by adjusting the input parameters during execution.
+You may run into an issue with your machines MAX_PATH_LENGTH being reached when trying to extract an extensive path with long directory names. On windows, to make sure this does not happen (Requires Users to have either Full Control or Special Permissins, if not available, contact an admin):
+
+1. Press the windows start key and type *Registry Editor* and choose the best match.
+2. Navigate to the following location
+*HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem*.
+3. Select the variable named **LongPathsEnabled**.
+    
+    **Note**: If the registry key does not exist, you can add it by performing the following:
+    
+    1. Right-click in an empty space below the other key
+    2. Select *New*.
+    3. Choose *DWORD (32-bit) Value*.
+    4. Right-click the newly added key and choose *Rename*.
+    5. Rename the key to **LongPathsEnabled** and press *Enter*.
+
+4. Double-click the **LongPathsEnabled** entry to open the key.
+5. In the *Value* data field, enter a value of **1** and press OK.
+
+Now, longer paths should be enabled on your machine, and no issues should arise. For more information, please follow this [link](https://www.autodesk.com/support/technical/article/caas/sfdcarticles/sfdcarticles/The-Windows-10-default-path-length-limitation-MAX-PATH-is-256-characters.html#:~:text=By%20default%2C%20Windows%20uses%20a,Files%2C%20Paths%2C%20and%20Namespaces.).
 
 ## Contributing
 
