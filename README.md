@@ -18,7 +18,7 @@ The Ripple Unzipple project is a Python script designed to recursively unzip all
 To install and set up Ripple Unzipple, follow these steps:
 
 1. Clone the repository to your local machine.
-2. Ensure that you have Python 3 installed.
+2. Ensure that you have Python >=3.10 installed.
 3. Install the required dependencies using the following command:
 
 ```
@@ -42,11 +42,12 @@ python ./ripple_unzipple/ripple_unzipple.py /Testing/Data/TestFolder.zip /Testin
 
 You also have the option of calling this function from a module import with the following syntax:
 ```
-from /path/to/ripple_unzipple import ripple_unzip
+from /path/to/ripple_unzipple import ripple_unzip, logging, Colors
 
 def main():
     ripple_unzip(input_path, output_path, log_path)
 ```
+**Note**: to use the logging functionality you would need to import logging, and to get colors in compatible terminals you would need to import Colors. Otherwise you should only need to import ripple_unzip.
 
 ## Configuration
 
