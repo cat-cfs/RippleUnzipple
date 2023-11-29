@@ -51,7 +51,7 @@ def main():
 
 ## Configuration
 
-You may run into an issue with your machines MAX_PATH_LENGTH being reached when trying to extract an extensive path with long directory names. On windows, to make sure this does not happen (Requires Users to have either Full Control or Special Permissins, if not available, contact an admin):
+You may run into an issue with your machines MAX_PATH_LENGTH being reached when trying to extract an extensive path with long directory names. On windows, to make sure this does not happen (Requires Users to have either Full Control or Special Permissions, if not available, contact an admin):
 
 1. Press the windows start key and type *Registry Editor* and choose the best match.
 2. Navigate to the following location
