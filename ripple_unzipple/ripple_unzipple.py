@@ -112,7 +112,7 @@ def ripple_unzip(input_path, output_path, log_path = ''):
 
             with ZipFile(input_path, mode='r') if input_path.endswith(".zip") else SevenZipFile(input_path, mode='r') as archive_ref:
                 archive_ref.extractall(output_path)
-                recursive_unzip(output_path, output_path, log_path)
+                recursive_unzip(output_path, output_path, input_path, log_path)
         
         else:
             raise ValueError("ValueError: Unsupported input type. Please provide a directory or a compressed file.")
@@ -124,13 +124,14 @@ def ripple_unzip(input_path, output_path, log_path = ''):
         logging(log_path, Colors.ERROR, str(error))
         raise Exception(error)  
     
-def recursive_unzip(input_path, output_path, log_path = ''):   
+def recursive_unzip(input_path, output_path, original_input_path, log_path = ''):   
     """
     Recursively unzip .zip and .7z files in the input_path to the output_path.
 
     Args:
         input_path (str): Path to the input directory or compressed file.
         output_path (str): Path to the output directory.
+        original_input_path (str): Path of the oringinal input compress/directory.
         log_path (str, optional): Path to the log file. Defaults to ''.
         
     Return:
@@ -138,12 +139,16 @@ def recursive_unzip(input_path, output_path, log_path = ''):
     """
     # Create output_path if it doesn't exist
     os.makedirs(output_path, exist_ok=True)
-
+    
     # Iterate through the directory and unzip any compressed folders
     for root, dirs, files in os.walk(input_path):
         for file in files:
             # Get the file path of the input 
             file_path = os.path.join(root, file)
+            
+            # Make sure that the original zip does not get touched
+            if file_path == original_input_path:
+                continue
             
             # Get the path that the file will be extracted to
             extract_path = os.path.join(output_path, os.path.splitext(file_path)[0][len(input_path) + 1:])
@@ -155,7 +160,7 @@ def recursive_unzip(input_path, output_path, log_path = ''):
                         archive_ref.extractall(extract_path)
 
                         # Recursively call the function to check every file in the directory tree
-                        recursive_unzip(extract_path, extract_path, log_path)
+                        recursive_unzip(extract_path, extract_path, original_input_path, log_path)
 
                         # Flag the compressed file to be removed
                         file_to_remove = extract_path + '.zip' if file.endswith(".zip") else extract_path + '.7z'
