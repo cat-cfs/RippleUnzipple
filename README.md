@@ -73,7 +73,7 @@ Now, longer paths should be enabled on your machine, and no issues should arise.
 
 ## Contributing
 
-Although this project will most likely not be maintained or anything.
+This project might not be maintained.
 
 If you would like to contribute to Ripple Unzipple, follow these guidelines:
 
