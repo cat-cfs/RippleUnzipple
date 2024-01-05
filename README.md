@@ -49,6 +49,8 @@ def main():
 ```
 **Note**: to use the logging functionality you would need to import logging, and to get colors in compatible terminals you would need to import Colors. Otherwise you should only need to import ripple_unzip.
 
+**Note**: Another thing that you should keep in mind is that the output path folder name will overwrite the initial input path folder or file name in the final result. So if you wish to preserve that root object's name you can name your output path folder the same, or put the original input object in another folder and call the folder instead.
+
 ## Configuration
 
 You may run into an issue with your machines MAX_PATH_LENGTH being reached when trying to extract an extensive path with long directory names. On windows, to make sure this does not happen (Requires Users to have either Full Control or Special Permissions, if not available, contact an admin):
