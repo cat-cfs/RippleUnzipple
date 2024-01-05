@@ -76,6 +76,11 @@ def logging(file_path, type, message):
     
     # If there is a file path provided
     if file_path != '':
+        # Check if the directory exists, if not, create it
+        directory = os.path.dirname(file_path)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        
         # Open the file in append mode and append a log message
         with open(file_path, 'a') as log_file:
             log_file.write(f'{datetime.now().strftime("%d/%m/%Y %H:%M:%S")} [{tag}] {message}\n')
