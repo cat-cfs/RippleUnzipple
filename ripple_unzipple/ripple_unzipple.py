@@ -78,8 +78,6 @@ def logging(file_path, type, message):
     if file_path != '':
         # Check if the directory exists, if not, create it
         directory = os.path.dirname(file_path)
-        print(file_path)
-        print(directory)
         if not os.path.exists(directory):
             os.makedirs(directory)
         
