@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='RippleUnzipple',
-    version='0.1',
+    version='0.2',
     packages=find_packages(),
     install_requires=[
         'py7zr==0.20.8',
